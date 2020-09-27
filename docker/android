@@ -9,8 +9,6 @@ ENV JAVA_HOME=/opt/jdk-${JAVA_VERSION}
 ARG GRADLE_VERSION=6.6.1
 ENV GRADLE_HOME=/opt/gradle-${GRADLE_VERSION}
 ARG ANDROID_COMMANDLINE_VERSION=6609375
-ARG ANDROID_SDK_VERSION=24.4.1
-ARG ANDROID_API_VERSION=23
 ENV ANDROID_SDK_ROOT=/opt/android-sdk
 ENV PATH=$PATH:$JAVA_HOME/bin:$GRADLE_HOME/bin:${ANDROID_SDK_ROOT}/tools:${ANDROID_SDK_ROOT}/platform-tools
 
@@ -25,7 +23,7 @@ RUN apt-get install -qy wget unzip
 RUN cd /tmp && \
     wget -q https://download.java.net/openjdk/jdk${JAVA_VERSION}/ri/openjdk-${JAVA_VERSION}+${JAVA_PATCH_VERSION}_linux-x64_bin.tar.gz && \
     tar zxvf ./openjdk-${JAVA_VERSION}+${JAVA_PATCH_VERSION}_linux-x64_bin.tar.gz && \
-    mkdir -p ${JAVA_HOME} && \
+    mkdir -p ${JAVA_HOME%/*} && \
     mv ./jdk-${JAVA_VERSION} ${JAVA_HOME} && \
     rm ./openjdk-${JAVA_VERSION}+${JAVA_PATCH_VERSION}_linux-x64_bin.tar.gz
 
@@ -34,7 +32,7 @@ RUN cd /tmp && \
 RUN cd /tmp && \
     wget -q https://downloads.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip && \
     unzip ./gradle-${GRADLE_VERSION}-bin.zip && \
-    mkdir -p ${GRADLE_HOME} && \
+    mkdir -p ${GRADLE_HOME%/*} && \
     mv ./gradle-${GRADLE_VERSION} ${GRADLE_HOME} && \
     rm ./gradle-${GRADLE_VERSION}-bin.zip
 
@@ -47,6 +45,13 @@ RUN cd /tmp && \
     mkdir -p ${ANDROID_SDK_ROOT}/cmdline-tools && \
     mv ./tools ${ANDROID_SDK_ROOT}/cmdline-tools && \
     rm commandlinetools-linux-${ANDROID_COMMANDLINE_VERSION}_latest.zip
-RUN ${ANDROID_SDK_ROOT}/cmdline-tools/tools/sdkmanager
+RUN yes | ${ANDROID_SDK_ROOT}/cmdline-tools/tools/bin/sdkmanager --licenses
+RUN ${ANDROID_SDK_ROOT}/cmdline-tools/tools/bin/sdkmanager \
+    "build-tools" "build-tools;25.0.0" "build-tools;25.0.1" "build-tools;25.0.2" "build-tools;25.0.3" "build-tools;26.0.0" "build-tools;26.0.1" "build-tools;26.0.2" "build-tools;26.0.3" "build-tools;27.0.0" "build-tools;27.0.1" "build-tools;27.0.2" "build-tools;27.0.3" "build-tools;28.0.0" "build-tools;28.0.1" "build-tools;28.0.2" "build-tools;28.0.3" "build-tools;29.0.0" "build-tools;29.0.1" "build-tools;29.0.2" "build-tools;29.0.3" "build-tools;30.0.0" "build-tools;30.0.1" "build-tools;30.0.2" \
+    "platforms" "platforms;android-25" "platforms;android-26" "platforms;android-27" "platforms;android-28" "platforms;android-29" "platforms;android-30" \
+    "cmake" "cmake;3.6.4111459" \
+    "ndk" "ndk;16.1.4479499" "ndk;17.2.4988734" "ndk;18.1.5063045" "ndk;19.2.5345600" "ndk;20.0.5594570" "ndk;20.1.5948944" "ndk;21.0.6113669" "ndk;21.1.6352462" "ndk;21.2.6472646" "ndk;21.3.6528147" \
+    --channel=0
+
 
 WORKDIR /
